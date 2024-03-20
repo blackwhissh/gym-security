@@ -1,0 +1,100 @@
+spring:
+  profiles:
+    default: dev
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    username: postgres
+    password: 12345678
+server:
+  port: 8081
+  error:
+    include-message: always
+management:
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  endpoints:
+    enabled-by-default: false
+    web:
+      exposure:
+        include: health,info,prometheus
+  info:
+    env:
+      enabled: true
+  endpoint:
+    prometheus:
+      enabled: true
+    info:
+      enabled: true
+    health:
+      enabled: true
+      show-details: always
+      group:
+        check:
+          include:
+            - DB
+            - externalService
+    mappings:
+      enabled: true
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hibernate
+info:
+  app:
+    name: @project.name@
+    description: dev profile
+    version: @project.version@
+    java:
+      version: @java.version@
+  build-timestamp: @maven.build.timestamp@
+---
+spring:
+  config:
+    activate:
+      on-profile: admin
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hibernate_admin
+info:
+  app:
+    name: @project.name@
+    description: admin profile
+    version: @project.version@
+    java:
+      version: @java.version@
+  build-timestamp: @maven.build.timestamp@
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hibernate_prod
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    open-in-view: false
+info:
+  app:
+    name: @project.name@
+    description: @project.description@
+    version: @project.version@
+    java:
+      version: @java.version@
+  build-timestamp: @maven.build.timestamp@
+
+---
+spring:
+  profiles:
+    active: prod
