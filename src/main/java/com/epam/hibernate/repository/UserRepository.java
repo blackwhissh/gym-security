@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Repository;
 
 import javax.naming.AuthenticationException;
@@ -37,7 +38,7 @@ public class UserRepository {
             User user = (User) entityManager.createQuery("from User u where u.username = :username")
                     .setParameter("username", username)
                     .getSingleResult();
-            if (user.getPassword().equals(password)) {
+            if (BCrypt.checkpw(password,user.getPassword())) {
                 logger.info("User authenticated successfully");
                 return true;
             } else {

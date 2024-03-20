@@ -1,14 +1,17 @@
 package com.epam.hibernate.service;
 
+import com.epam.hibernate.config.PasswordConfig;
 import com.epam.hibernate.dto.OnOffRequest;
 import com.epam.hibernate.dto.user.LoginDTO;
 import com.epam.hibernate.dto.user.UserInfoDTO;
 import com.epam.hibernate.entity.RoleEnum;
 import com.epam.hibernate.entity.User;
+import com.epam.hibernate.exception.SamePasswordException;
 import com.epam.hibernate.exception.WrongPasswordException;
 import com.epam.hibernate.repository.UserRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
 import javax.naming.AuthenticationException;
@@ -32,9 +35,13 @@ public class UserService {
         if (userInfoDTO.getNewPassword() == null || userInfoDTO.getNewPassword().length() < 8) {
             throw new WrongPasswordException();
         }
+        if (userInfoDTO.getNewPassword().equals(userInfoDTO.getOldPassword())) {
+            throw new SamePasswordException();
+        }
         User user = userRepository.findByUsername(userInfoDTO.getUsername());
         authenticate(new LoginDTO(userInfoDTO.getUsername(), userInfoDTO.getOldPassword()));
-        userRepository.changePassword(userInfoDTO.getNewPassword(), user.getUserId());
+        String encryptedNewPass = PasswordConfig.passwordEncoder().encode(userInfoDTO.getNewPassword());
+        userRepository.changePassword(encryptedNewPass, user.getUserId());
         return ResponseEntity.status(200).body("Password changed successfully");
     }
 

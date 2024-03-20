@@ -58,4 +58,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         response.setMessage("Training type enum not found");
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(SamePasswordException.class)
+    public ResponseEntity<Object> handleSamePasswordException(SamePasswordException exception){
+        ExceptionResponse response = new ExceptionResponse();
+        response.setDateTime(LocalDateTime.now());
+        response.setMessage("Passwords can not be same");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 }

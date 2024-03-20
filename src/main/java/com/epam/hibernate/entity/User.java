@@ -1,6 +1,7 @@
 package com.epam.hibernate.entity;
 
 import com.epam.hibernate.Utils;
+import com.epam.hibernate.config.PasswordConfig;
 import jakarta.persistence.*;
 
 @Entity
@@ -23,7 +24,6 @@ public class User {
     private Boolean isActive;
     private RoleEnum role;
 
-
     public User() {
     }
 
@@ -32,7 +32,9 @@ public class User {
         this.role = role;
         this.lastName = lastName;
         this.isActive = isActive;
-        this.password = Utils.generatePassword();
+        String generatedPassword = Utils.generatePassword();
+        System.out.println(generatedPassword);
+        this.password = PasswordConfig.passwordEncoder().encode(generatedPassword);
     }
 
     public User(RoleEnum roleEnum) {
