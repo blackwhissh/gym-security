@@ -72,7 +72,7 @@ public class LogEntryExitAspect {
     }
 
     static String exit(String methodName, String duration, Object result, boolean showResult, boolean showExecutionTime) {
-        StringJoiner message = new StringJoiner(" ").add("ID- " + id + "   ")
+        StringJoiner message = new StringJoiner(" ").add(id + "   ")
                 .add("Finished").add(methodName).add("method");
 
         if (showExecutionTime) {

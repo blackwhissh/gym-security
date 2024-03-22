@@ -11,6 +11,7 @@ import com.epam.hibernate.entity.*;
 import com.epam.hibernate.repository.TraineeRepository;
 import com.epam.hibernate.repository.TrainerRepository;
 import com.epam.hibernate.repository.UserRepository;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +27,7 @@ import java.nio.file.AccessDeniedException;
 import java.sql.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,6 +38,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class TraineeServiceTest {
+    @Mock
+    private MeterRegistry meterRegistry;
     @Mock
     private TraineeRepository traineeRepository;
     @Mock
@@ -55,7 +59,8 @@ class TraineeServiceTest {
 
         return mockTrainee;
     }
-    private Trainer createMockTrainer(){
+
+    private Trainer createMockTrainer() {
         Trainer mockTrainer = mock(Trainer.class);
         User mockUser = mock(User.class);
 
@@ -68,7 +73,7 @@ class TraineeServiceTest {
     private List<Trainer> createMockTrainerList() {
         Trainer trainer = mock(Trainer.class);
 
-        when(trainer.getUser()).thenReturn(new User("John","Doe",true,RoleEnum.TRAINER));
+        when(trainer.getUser()).thenReturn(new User("John", "Doe", true, RoleEnum.TRAINER));
         return List.of(trainer);
     }
 
@@ -83,7 +88,6 @@ class TraineeServiceTest {
 
         return List.of(training);
     }
-
 
     @Test
     void createTraineeProfileOk() {
@@ -137,10 +141,8 @@ class TraineeServiceTest {
         Trainee mockTrainee = createMockTrainee();
         when(traineeRepository.selectByUsername(any(String.class))).thenReturn(mockTrainee);
 
-        LoginDTO loginDTO = new LoginDTO("admin", "admin");
-
-        ResponseEntity<TraineeProfileResponse> response = traineeService.selectCurrentTraineeProfile(
-                "John.Doe", loginDTO
+        ResponseEntity<TraineeProfileResponse> response = traineeService.selectTraineeProfile(
+                "John.Doe"
         );
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -167,9 +169,9 @@ class TraineeServiceTest {
     void deleteTraineeOk() throws AuthenticationException, AccessDeniedException {
         when(userService.authenticate(any(LoginDTO.class))).thenReturn(null);
 
-        when(userRepository.findByUsername(any())).thenReturn(new User(RoleEnum.ADMIN));
+        when(userRepository.findByUsername(any())).thenReturn(Optional.of(new User(RoleEnum.ADMIN)));
 
-        traineeService.deleteTrainee("John.Doe", new LoginDTO("admin", "admin"));
+        traineeService.deleteTrainee("John.Doe");
 
         verify(userService, times(1)).authenticate(any(LoginDTO.class));
         verify(traineeRepository, times(1)).deleteTrainee("John.Doe");
@@ -205,6 +207,7 @@ class TraineeServiceTest {
 
         assertEquals(200, responseEntity.getStatusCode().value());
     }
+
     @Test
     void assignedTrainersListOk() throws AuthenticationException {
         when(userService.authenticate(any(LoginDTO.class))).thenReturn(null);
@@ -220,6 +223,7 @@ class TraineeServiceTest {
 
         assertEquals(0, assignedTrainers.size());
     }
+
     @Test
     void updateTrainersListOk() throws AuthenticationException {
         when(userService.authenticate(any(LoginDTO.class))).thenReturn(null);
@@ -235,7 +239,7 @@ class TraineeServiceTest {
         Set<String> trainersSet = new HashSet<>();
         trainersSet.add("trainerUsername");
         UpdateTrainersListRequest request = new UpdateTrainersListRequest(
-                new LoginDTO("John.Doe","password"),
+                new LoginDTO("John.Doe", "password"),
                 trainersSet
         );
 

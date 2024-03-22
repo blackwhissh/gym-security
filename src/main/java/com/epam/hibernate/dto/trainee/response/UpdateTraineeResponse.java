@@ -82,4 +82,15 @@ public class UpdateTraineeResponse {
     public void setTrainerList(Set<TrainerListInfo> trainerList) {
         this.trainerList = trainerList;
     }
+
+    @Override
+    public String toString() {
+        return  "username='" + username + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", dob=" + dob +
+                ", address='" + address + '\'' +
+                ", isActive=" + isActive +
+                ", trainerList=" + trainerList;
+    }
 }

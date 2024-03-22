@@ -35,16 +35,13 @@ public class TraineeRepository {
     }
 
     public Trainee selectByUsername(String username) {
-        Trainee trainee;
-        try {
-            trainee = (Trainee) entityManager.createQuery("select t from Trainee t join fetch t.user u where u.username like :username")
-                    .setParameter("username", username)
-                    .getSingleResult();
-            logger.info("User found");
-        } catch (RuntimeException e) {
+        Trainee trainee = (Trainee) entityManager.createQuery("select t from Trainee t join fetch t.user u where u.username like :username")
+                .setParameter("username", username)
+                .getSingleResult();
+
+        if(trainee == null){
             logger.warning("User not found");
             throw new EntityNotFoundException("Wrong username - " + username);
-
         }
         return trainee;
     }
@@ -92,6 +89,9 @@ public class TraineeRepository {
     @Transactional
     public void deleteTrainee(String username) {
         Trainee trainee = selectByUsername(username);
+        entityManager.createQuery("delete refreshtoken r where r.user = :user")
+                .setParameter("user", trainee.getUser())
+                .executeUpdate();
         entityManager.createQuery("delete Training t where t.trainee = :trainee")
                 .setParameter("trainee", trainee)
                 .executeUpdate();

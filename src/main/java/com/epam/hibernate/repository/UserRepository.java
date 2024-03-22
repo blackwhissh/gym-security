@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Repository;
 
 import javax.naming.AuthenticationException;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 @Repository
@@ -50,15 +51,25 @@ public class UserRepository {
             throw new EntityNotFoundException();
         }
     }
+    public Optional<User> findById(Long id) {
+        User user = (User) entityManager.createQuery("from User u where u.id = :id")
+                .setParameter("id", id)
+                .getSingleResult();
+        if (user == null) throw new EntityNotFoundException();
 
-    public User findByUsername(String username) {
+        return Optional.of(user);
+    }
+
+    public Optional<User> findByUsername(String username) {
+        User user;
         if (usernameExists(username)) {
-            return (User) entityManager.createQuery("from User u where u.username = :username")
+            user = (User) entityManager.createQuery("from User u where u.username = :username")
                     .setParameter("username", username)
                     .getSingleResult();
         } else {
             throw new EntityNotFoundException();
         }
+        return Optional.of(user);
     }
 
     @Transactional

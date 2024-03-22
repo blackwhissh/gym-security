@@ -43,8 +43,14 @@ public class TrainerListInfo {
     public TrainingType getSpecialization() {
         return specialization;
     }
-
     public void setSpecialization(TrainingType specialization) {
         this.specialization = specialization;
+    }
+    @Override
+    public String toString() {
+        return  "username='" + username + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", specialization=" + specialization;
     }
 }

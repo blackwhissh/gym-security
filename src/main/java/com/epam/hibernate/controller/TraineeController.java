@@ -13,17 +13,18 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.naming.AuthenticationException;
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
 @RequestMapping(value = "/v1/trainee", consumes = {"application/JSON"}, produces = {"application/JSON", "application/XML"})
 public class TraineeController {
-    Counter registerCounter;
     private final TraineeService traineeService;
+    Counter registerCounter;
 
     public TraineeController(TraineeService traineeService, MeterRegistry meterRegistry) {
         this.traineeService = traineeService;
@@ -41,29 +42,21 @@ public class TraineeController {
         return traineeService.createProfile(request);
     }
 
-    @GetMapping("{username}")
+    @GetMapping()
     @LogEntryExit(showArgs = true, showResult = true)
-    @Operation(summary = "Get Trainee Profile", description = "This method returns Trainee profile")
-    public ResponseEntity<TraineeProfileResponse> getTraineeProfile(@PathVariable String username,
-                                                                    @RequestBody LoginDTO loginDTO) throws AuthenticationException {
-        return traineeService.selectCurrentTraineeProfile(username, loginDTO);
+    @Operation(summary = "Get Trainee Profile", description = "This method returns Logged In Trainee profile")
+    @PreAuthorize("hasRole('ROLE_TRAINEE')")
+    public ResponseEntity<TraineeProfileResponse> getCurrentTraineeProfile(@AuthenticationPrincipal String username) throws AuthenticationException {
+        return traineeService.selectTraineeProfile(username);
     }
 
     @PutMapping("/update/{username}")
     @LogEntryExit(showArgs = true, showResult = true)
     @Operation(summary = "Update Trainee Profile", description = "This method updates Trainee profile")
+    @PreAuthorize("hasRole('ROLE_TRAINEE')")
     public ResponseEntity<UpdateTraineeResponse> updateTraineeProfile(@PathVariable String username,
                                                                       @RequestBody UpdateTraineeRequest request) throws AuthenticationException {
         return traineeService.updateTrainee(username, request);
-    }
-
-    @DeleteMapping("/delete/{username}")
-    @LogEntryExit(showArgs = true, showResult = true)
-    @Operation(summary = "Delete Trainee Profile", description = "This method deletes Trainee profile")
-    public ResponseEntity<?> deleteTraineeProfile(@PathVariable String username,
-                                                  @RequestBody LoginDTO loginDTO) throws AccessDeniedException, AuthenticationException {
-        traineeService.deleteTrainee(username, loginDTO);
-        return ResponseEntity.ok().body("Trainee profile deleted successfully");
     }
 
     @GetMapping(value = "/not-assigned-trainers/{username}")

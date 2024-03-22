@@ -7,6 +7,14 @@ public class ExceptionResponse {
     private String message;
     private LocalDateTime dateTime;
 
+    public ExceptionResponse() {
+    }
+
+    public ExceptionResponse(String message, LocalDateTime dateTime) {
+        this.message = message;
+        this.dateTime = dateTime;
+    }
+
     public String getMessage() {
         return message;
     }

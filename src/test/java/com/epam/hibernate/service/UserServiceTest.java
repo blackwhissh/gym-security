@@ -13,12 +13,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
 import javax.naming.AuthenticationException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class})
 public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
@@ -44,7 +45,7 @@ public class UserServiceTest {
         when(userRepository.authenticate(any(String.class), any(String.class))).thenReturn(true);
 
         User mockUser = createMockUser();
-        when(userRepository.findByUsername(any(String.class))).thenReturn(mockUser);
+        when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(mockUser));
 
         OnOffRequest onOffRequest = new OnOffRequest("admin", "password");
         ResponseEntity<?> responseEntity = userService.activateDeactivate("username", onOffRequest);

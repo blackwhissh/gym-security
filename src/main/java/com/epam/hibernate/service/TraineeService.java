@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.epam.hibernate.Utils.checkAdmin;
 import static com.epam.hibernate.Utils.generateUsername;
 
 @Service
@@ -61,11 +60,10 @@ public class TraineeService {
             traineeRepository.save(trainee);
         });
 
-        return ResponseEntity.ok().body(new TraineeRegisterResponse(traineeUser.getUsername(), traineeUser.getPassword()));
+        return ResponseEntity.ok().body(new TraineeRegisterResponse(traineeUser.getUsername(), traineeUser.getTempPass()));
     }
 
-    public ResponseEntity<TraineeProfileResponse> selectCurrentTraineeProfile(@NotNull String username, @NotNull LoginDTO loginDTO) throws AuthenticationException {
-        userService.authenticate(loginDTO);
+    public ResponseEntity<TraineeProfileResponse> selectTraineeProfile(String username) {
         Trainee trainee = traineeRepository.selectByUsername(username);
 
         return ResponseEntity.ok().body(new TraineeProfileResponse(
@@ -81,11 +79,6 @@ public class TraineeService {
                         trainer.getSpecialization()
                 )).collect(Collectors.toSet())));
     }
-//    public Trainee selectProfile(@NotNull String newUsername, @NotNull User admin) throws AuthenticationException, AccessDeniedException {
-//        checkAdmin(admin);
-//        userRepository.authenticate(admin.getUsername(),admin.getPassword());
-//        return traineeRepository.selectByUsername(newUsername);
-//    }
 
     public ResponseEntity<UpdateTraineeResponse> updateTrainee(@NotNull String username,
                                                                @NotNull UpdateTraineeRequest request) throws AuthenticationException {
@@ -110,9 +103,7 @@ public class TraineeService {
     }
 
     @Transactional
-    public void deleteTrainee(@NotNull String username, @NotNull LoginDTO loginDTO) throws AuthenticationException {
-        checkAdmin(loginDTO.getUsername(), userRepository);
-        userService.authenticate(loginDTO);
+    public void deleteTrainee(@NotNull String username) {
         traineeRepository.deleteTrainee(username);
     }
 

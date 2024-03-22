@@ -23,6 +23,8 @@ public class User {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
     private RoleEnum role;
+    private String tempPass;
+
 
     public User() {
     }
@@ -33,7 +35,7 @@ public class User {
         this.lastName = lastName;
         this.isActive = isActive;
         String generatedPassword = Utils.generatePassword();
-        System.out.println(generatedPassword);
+        this.tempPass = generatedPassword;
         this.password = PasswordConfig.passwordEncoder().encode(generatedPassword);
     }
 
@@ -107,5 +109,9 @@ public class User {
                 ", password='" + password + '\'' +
                 ", isActive=" + isActive +
                 '}';
+    }
+
+    public String getTempPass() {
+        return tempPass;
     }
 }

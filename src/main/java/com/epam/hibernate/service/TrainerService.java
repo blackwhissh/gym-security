@@ -65,7 +65,7 @@ public class TrainerService {
         });
         return ResponseEntity.ok().body(new TrainerRegisterResponse(
                 trainerUser.getUsername(),
-                trainerUser.getPassword()
+                trainerUser.getTempPass()
         ));
     }
 

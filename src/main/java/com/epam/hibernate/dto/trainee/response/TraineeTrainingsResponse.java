@@ -60,4 +60,13 @@ public class TraineeTrainingsResponse {
     public void setTrainerName(String trainerName) {
         this.trainerName = trainerName;
     }
+
+    @Override
+    public String toString() {
+        return "trainingName='" + trainingName + '\'' +
+                ", trainingDate=" + trainingDate +
+                ", trainingType=" + trainingType +
+                ", duration=" + duration +
+                ", trainerName='" + trainerName;
+    }
 }

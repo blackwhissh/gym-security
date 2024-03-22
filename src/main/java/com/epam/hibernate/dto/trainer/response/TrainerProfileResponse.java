@@ -60,4 +60,13 @@ public class TrainerProfileResponse {
     public void setTraineeList(Set<TraineeListInfo> traineeList) {
         this.traineeList = traineeList;
     }
+
+    @Override
+    public String toString() {
+        return "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", specialization=" + specialization +
+                ", isActive=" + isActive +
+                ", traineeList=" + traineeList ;
+    }
 }
