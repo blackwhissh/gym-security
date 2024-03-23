@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(value = "/v1/admin", consumes = {"application/JSON"}, produces = {"application/JSON", "application/XML"})
 @EnableMethodSecurity
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class AdminController {
     private final TraineeService traineeService;
 

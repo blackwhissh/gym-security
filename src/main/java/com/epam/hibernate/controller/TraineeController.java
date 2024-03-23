@@ -22,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/v1/trainee", consumes = {"application/JSON"}, produces = {"application/JSON", "application/XML"})
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class TraineeController {
     private final TraineeService traineeService;
     Counter registerCounter;
@@ -46,7 +47,7 @@ public class TraineeController {
     @LogEntryExit(showArgs = true, showResult = true)
     @Operation(summary = "Get Trainee Profile", description = "This method returns Logged In Trainee profile")
     @PreAuthorize("hasRole('ROLE_TRAINEE')")
-    public ResponseEntity<TraineeProfileResponse> getCurrentTraineeProfile(@AuthenticationPrincipal String username) throws AuthenticationException {
+    public ResponseEntity<TraineeProfileResponse> getCurrentTraineeProfile(@AuthenticationPrincipal String username) {
         return traineeService.selectTraineeProfile(username);
     }
 

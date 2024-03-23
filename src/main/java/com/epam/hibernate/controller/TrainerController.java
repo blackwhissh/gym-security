@@ -21,6 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/v1/trainer", consumes = {"application/JSON"}, produces = {"application/JSON", "application/XML"})
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class TrainerController {
     Counter registerCounter;
     private final TrainerService trainerService;
