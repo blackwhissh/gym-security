@@ -43,7 +43,7 @@ public class UserRepository {
                 logger.info("User authenticated successfully");
                 return true;
             } else {
-                logger.warning("Wrong password");
+                logger.warning("Wrong Credentials");
                 throw new AuthenticationErrorException();
             }
         } else {

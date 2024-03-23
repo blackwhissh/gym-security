@@ -8,12 +8,10 @@ import com.epam.hibernate.dto.user.UserInfoDTO;
 import com.epam.hibernate.entity.RefreshToken;
 import com.epam.hibernate.entity.RoleEnum;
 import com.epam.hibernate.entity.User;
-import com.epam.hibernate.exception.ExceptionResponse;
-import com.epam.hibernate.exception.NoAuthorityException;
-import com.epam.hibernate.exception.SamePasswordException;
-import com.epam.hibernate.exception.WrongPasswordException;
+import com.epam.hibernate.exception.*;
 import com.epam.hibernate.repository.UserRepository;
 import com.epam.hibernate.security.ApplicationUser;
+import com.epam.hibernate.security.BruteForceProtector;
 import com.epam.hibernate.security.jwt.JwtUtils;
 import com.epam.hibernate.security.jwt.RefreshTokenService;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,7 +24,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.naming.AuthenticationException;
-
 import java.time.LocalDateTime;
 
 import static com.epam.hibernate.Utils.checkAdmin;
@@ -37,26 +34,37 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
+    private final BruteForceProtector bruteForceProtector;
 
-    public UserService(JwtUtils jwtUtils, AuthenticationManager authenticationManager, UserRepository userRepository, RefreshTokenService refreshTokenService) {
+    public UserService(JwtUtils jwtUtils, AuthenticationManager authenticationManager, UserRepository userRepository, RefreshTokenService refreshTokenService, BruteForceProtector bruteForceProtector) {
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.refreshTokenService = refreshTokenService;
+        this.bruteForceProtector = bruteForceProtector;
     }
 
     public ResponseEntity<?> authenticate(LoginDTO loginDTO) throws AuthenticationException {
         User user = userRepository.findByUsername(loginDTO.getUsername())
-                        .orElseThrow(EntityNotFoundException::new);
-        refreshTokenService.deleteByUserId(user.getUserId());
-        if(!user.getActive()){
+                .orElseThrow(EntityNotFoundException::new);
+        if (!user.getActive()) {
             return ResponseEntity.badRequest().body(new ExceptionResponse("User set to inactive, please contact support", LocalDateTime.now()));
         }
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginDTO.getUsername(),
-                        loginDTO.getPassword()));
-        System.out.println("blah");
+        if (bruteForceProtector.isUserBlocked(loginDTO.getUsername())){
+            throw new UserIsBlockedException();
+        }
+
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginDTO.getUsername(),
+                            loginDTO.getPassword()));
+        } catch (Exception e) {
+            bruteForceProtector.recordFailedLoginAttempt(loginDTO.getUsername());
+            throw new AuthenticationErrorException();
+        }
+        bruteForceProtector.unblockUser(loginDTO.getUsername());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         ApplicationUser applicationUser = (ApplicationUser) authentication.getPrincipal();

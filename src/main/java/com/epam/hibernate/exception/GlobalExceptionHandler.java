@@ -82,4 +82,26 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         response.setMessage("Refresh token expired!");
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(RefreshTokenNotFoundException.class)
+    public ResponseEntity<Object> handleRefreshTokenNotFoundException(RefreshTokenNotFoundException e) {
+        ExceptionResponse response = new ExceptionResponse();
+        response.setDateTime(LocalDateTime.now());
+        response.setMessage("Refresh token not found");
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ActiveTokenRevokedException.class)
+    public ResponseEntity<Object> handleActiveTokenRevokedException(ActiveTokenRevokedException e) {
+        ExceptionResponse response = new ExceptionResponse();
+        response.setDateTime(LocalDateTime.now());
+        response.setMessage("Active token is revoked");
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+    @ExceptionHandler(UserIsBlockedException.class)
+    public ResponseEntity<Object> handleUserIsBlockedException(UserIsBlockedException e) {
+        ExceptionResponse response = new ExceptionResponse();
+        response.setDateTime(LocalDateTime.now());
+        response.setMessage("User is blocked");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 }

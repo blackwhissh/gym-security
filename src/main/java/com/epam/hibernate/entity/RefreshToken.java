@@ -1,7 +1,6 @@
 package com.epam.hibernate.entity;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.Cascade;
 
 import java.time.Instant;
 
@@ -10,9 +9,7 @@ public class RefreshToken {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @OneToOne(orphanRemoval = true, fetch = FetchType.EAGER)
-    @Cascade({org.hibernate.annotations.CascadeType.ALL,
-            org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
+    @OneToOne(fetch = FetchType.EAGER)
     private User user;
     @Column(nullable = false, unique = true)
     private String token;

@@ -1,5 +1,6 @@
 package com.epam.hibernate.security.jwt;
 
+import com.epam.hibernate.exception.ActiveTokenRevokedException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -16,14 +17,14 @@ import java.util.Date;
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    public String generateJwtToken(String email) {
+    public String generateJwtToken(String username) {
         Instant now = Instant.now();
         String jwtExpirationMs = "3600000";
         Instant expirationTime = now.plusMillis(Long.parseLong(jwtExpirationMs));
         Date expirationDate = Date.from(expirationTime);
 
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(expirationDate)
                 .signWith(key(), SignatureAlgorithm.HS256)
@@ -41,6 +42,7 @@ public class JwtUtils {
     }
 
     public boolean validateJwtToken(String authToken) {
+        if (TokenManager.revokedTokens.contains(authToken)) throw new ActiveTokenRevokedException();
         try {
             Jwts.parserBuilder().setSigningKey(key()).build().parse(authToken);
             return true;
