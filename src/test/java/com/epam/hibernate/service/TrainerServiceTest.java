@@ -22,7 +22,6 @@ import org.mockito.quality.Strictness;
 import org.springframework.http.ResponseEntity;
 
 import javax.naming.AuthenticationException;
-
 import java.util.Date;
 import java.util.List;
 
@@ -103,24 +102,20 @@ class TrainerServiceTest {
     }
 
     @Test
-    void selectCurrentTrainerProfileOk() throws AuthenticationException {
+    void selectCurrentTrainerProfileOk() {
         when(userService.authenticate(any(LoginDTO.class))).thenReturn(null);
 
         Trainer mockTrainer = createMockTrainer();
         when(trainerRepository.selectByUsername(any(String.class))).thenReturn(mockTrainer);
 
-        // Call the method under test
-        LoginDTO loginDTO = new LoginDTO("admin", "admin");
-        ResponseEntity<TrainerProfileResponse> responseEntity = trainerService.selectCurrentTrainerProfile("John.Trainer", loginDTO);
+        ResponseEntity<TrainerProfileResponse> responseEntity = trainerService.selectTrainerProfile("John.Trainer");
 
-        // Assertions
         assertEquals(200, responseEntity.getStatusCode().value());
-        // Add more assertions based on your specific scenario
         verify(trainerRepository, times(1)).selectByUsername("John.Trainer");
     }
 
     @Test
-    void updateTrainerOk() throws AuthenticationException {
+    void updateTrainerOk() {
         when(userService.authenticate(any(LoginDTO.class))).thenReturn(null);
 
         Trainer mockTrainer = createMockTrainer();
@@ -130,7 +125,6 @@ class TrainerServiceTest {
                 .thenReturn(mockTrainer);
 
         UpdateTrainerRequest updateRequest = new UpdateTrainerRequest(
-                new LoginDTO("John.Trainer", "password"),
                 "John", "Trainer", TrainingTypeEnum.AGILITY, true
         );
         ResponseEntity<UpdateTrainerResponse> responseEntity = trainerService.updateTrainer("John.Trainer", updateRequest);
@@ -138,9 +132,9 @@ class TrainerServiceTest {
         assertEquals(200, responseEntity.getStatusCode().value());
         verify(trainerRepository, times(1)).updateTrainer("John.Trainer", updateRequest.getFirstName(), updateRequest.getLastName(), updateRequest.getActive(), updateRequest.getSpecialization());
     }
+
     @Test
-    void getTrainingListOk() throws AuthenticationException {
-        // Mock the userService.authenticate behavior
+    void getTrainingListOk(){
         when(userService.authenticate(any(LoginDTO.class))).thenReturn(null);
 
         Trainer mockTrainer = createMockTrainer();
@@ -151,16 +145,13 @@ class TrainerServiceTest {
         when(trainerRepository.getTrainingList(any(String.class), any(Date.class), any(Date.class),
                 any(String.class), any(TrainingTypeEnum.class))).thenReturn(mockTrainingList);
 
-        // Call the method under test
-        TrainerTrainingsRequest trainingsRequest = new TrainerTrainingsRequest(new LoginDTO("username", "password"),
+        TrainerTrainingsRequest trainingsRequest = new TrainerTrainingsRequest(
                 null, null, "traineeName");
         ResponseEntity<List<TrainerTrainingsResponse>> responseEntity = trainerService.getTrainingList("username", trainingsRequest);
 
-        // Assertions
         assertEquals(200, responseEntity.getStatusCode().value());
     }
 
-    // Add more test cases for various scenarios, e.g., when authentication fails, when there are no trainings, etc.
 
     private List<Training> createMockTrainingList() {
         Training mockTraining = mock(Training.class);

@@ -157,8 +157,7 @@ class TraineeServiceTest {
                 .thenReturn(mockTrainee);
 
         ResponseEntity<UpdateTraineeResponse> responseEntity = traineeService.updateTrainee(
-                "John.Doe", new UpdateTraineeRequest(
-                        new LoginDTO("admin", "admin"), "James", "Smith",
+                "John.Doe", new UpdateTraineeRequest("James", "Smith",
                         null, null, true
                 ));
 
@@ -166,7 +165,7 @@ class TraineeServiceTest {
     }
 
     @Test
-    void deleteTraineeOk() throws AuthenticationException, AccessDeniedException {
+    void deleteTraineeOk() throws AuthenticationException{
         when(userService.authenticate(any(LoginDTO.class))).thenReturn(null);
 
         when(userRepository.findByUsername(any())).thenReturn(Optional.of(new User(RoleEnum.ADMIN)));
@@ -186,7 +185,7 @@ class TraineeServiceTest {
                 .thenReturn(mockTrainingList);
 
         TraineeTrainingsRequest request = new TraineeTrainingsRequest(
-                new LoginDTO("admin", "admin"), null, null, null, null
+                null, null, null, null
         );
         ResponseEntity<List<TraineeTrainingsResponse>> responseEntity = traineeService.getTrainingList("John.Doe", request);
 
@@ -203,7 +202,7 @@ class TraineeServiceTest {
         List<Trainer> mockTrainers = createMockTrainerList();
         when(trainerRepository.getAllTrainers()).thenReturn(mockTrainers);
 
-        ResponseEntity<List<NotAssignedTrainer>> responseEntity = traineeService.notAssignedTrainersList("John.Doe", new LoginDTO("admin", "admin"));
+        ResponseEntity<List<NotAssignedTrainer>> responseEntity = traineeService.notAssignedTrainersList("John.Doe");
 
         assertEquals(200, responseEntity.getStatusCode().value());
     }
@@ -239,7 +238,6 @@ class TraineeServiceTest {
         Set<String> trainersSet = new HashSet<>();
         trainersSet.add("trainerUsername");
         UpdateTrainersListRequest request = new UpdateTrainersListRequest(
-                new LoginDTO("John.Doe", "password"),
                 trainersSet
         );
 

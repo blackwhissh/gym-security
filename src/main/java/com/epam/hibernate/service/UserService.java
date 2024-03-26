@@ -2,7 +2,6 @@ package com.epam.hibernate.service;
 
 import com.epam.hibernate.config.PasswordConfig;
 import com.epam.hibernate.dto.JwtResponse;
-import com.epam.hibernate.dto.OnOffRequest;
 import com.epam.hibernate.dto.user.LoginDTO;
 import com.epam.hibernate.dto.user.UserInfoDTO;
 import com.epam.hibernate.entity.RefreshToken;
@@ -20,13 +19,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.naming.AuthenticationException;
 import java.time.LocalDateTime;
-
-import static com.epam.hibernate.Utils.checkAdmin;
 
 @Service
 public class UserService {
@@ -44,7 +42,7 @@ public class UserService {
         this.bruteForceProtector = bruteForceProtector;
     }
 
-    public ResponseEntity<?> authenticate(LoginDTO loginDTO) throws AuthenticationException {
+    public ResponseEntity<?> authenticate(LoginDTO loginDTO) {
         User user = userRepository.findByUsername(loginDTO.getUsername())
                 .orElseThrow(EntityNotFoundException::new);
         if (!user.getActive()) {
@@ -81,24 +79,22 @@ public class UserService {
         ));
     }
 
-    public ResponseEntity<?> changePassword(@NotNull UserInfoDTO userInfoDTO) throws AuthenticationException {
+    public ResponseEntity<?> changePassword(@AuthenticationPrincipal String username,
+                                            @NotNull UserInfoDTO userInfoDTO){
         if (userInfoDTO.getNewPassword() == null || userInfoDTO.getNewPassword().length() < 8) {
             throw new WrongPasswordException();
         }
         if (userInfoDTO.getNewPassword().equals(userInfoDTO.getOldPassword())) {
             throw new SamePasswordException();
         }
-        User user = userRepository.findByUsername(userInfoDTO.getUsername()).get();
-        authenticate(new LoginDTO(userInfoDTO.getUsername(), userInfoDTO.getOldPassword()));
+        User user = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException::new);
         String encryptedNewPass = PasswordConfig.passwordEncoder().encode(userInfoDTO.getNewPassword());
         userRepository.changePassword(encryptedNewPass, user.getUserId());
         return ResponseEntity.status(200).body("Password changed successfully");
     }
 
-    public ResponseEntity<?> activateDeactivate(@NotNull String username, @NotNull OnOffRequest request) throws AuthenticationException {
-        checkAdmin(request.getUsername(), userRepository);
-        authenticate(new LoginDTO(request.getUsername(), request.getPassword()));
-        User user = userRepository.findByUsername(username).get();
+    public ResponseEntity<?> activateDeactivate(@NotNull String username){
+        User user = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException::new);
         user.setActive(!user.getActive());
         userRepository.activateDeactivate(user.getActive(), user.getUserId());
         return ResponseEntity.ok("User activated/deactivated successfully");

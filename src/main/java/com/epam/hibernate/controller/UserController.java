@@ -1,7 +1,6 @@
 package com.epam.hibernate.controller;
 
 import com.epam.hibernate.config.LogEntryExit;
-import com.epam.hibernate.dto.OnOffRequest;
 import com.epam.hibernate.dto.user.LoginDTO;
 import com.epam.hibernate.dto.user.RefreshTokenRequest;
 import com.epam.hibernate.dto.user.RefreshTokenResponse;
@@ -20,6 +19,8 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,17 +57,19 @@ public class UserController {
 
     @PutMapping(value = "/change-password")
     @LogEntryExit(showArgs = true, showResult = true)
-    @Operation(summary = "Change User Password", description = "This method changes User's password and returns new password")
-    public ResponseEntity<?> changePassword(@RequestBody UserInfoDTO userInfoDTO) throws AuthenticationException {
-        return userService.changePassword(userInfoDTO);
+    @Operation(summary = "Change Current User Password", description = "This method changes User's password and returns new password")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_TRAINEE', 'ROLE_TRAINER')")
+    public ResponseEntity<?> changePassword(@AuthenticationPrincipal String username,
+                                            @RequestBody UserInfoDTO userInfoDTO){
+        return userService.changePassword(username,userInfoDTO);
     }
 
     @PatchMapping(value = "/on-off/{username}")
     @LogEntryExit(showArgs = true, showResult = true)
     @Operation(summary = "Activate/Deactivate", description = "This method Activates/Deactivates User")
-    public ResponseEntity<?> onOffTrainee(@PathVariable String username,
-                                          @RequestBody OnOffRequest request) throws AuthenticationException {
-        return userService.activateDeactivate(username, request);
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> onOffTrainee(@PathVariable String username){
+        return userService.activateDeactivate(username);
     }
 
     @PostMapping(value = "/refresh")
@@ -87,6 +90,8 @@ public class UserController {
     }
 
     @PostMapping("/logout")
+    @LogEntryExit(showArgs = true, showResult = true)
+    @Operation(summary = "Log Out", description = "This method is used to Log Out current User")
     public ResponseEntity<?> logoutUser(HttpServletRequest httpRequest) {
         User user = userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString())
                 .orElseThrow(EntityNotFoundException::new);

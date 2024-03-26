@@ -6,7 +6,6 @@ import com.epam.hibernate.dto.trainee.request.UpdateTraineeRequest;
 import com.epam.hibernate.dto.trainee.request.UpdateTrainersListRequest;
 import com.epam.hibernate.dto.trainee.response.*;
 import com.epam.hibernate.dto.trainer.TrainerListInfo;
-import com.epam.hibernate.dto.user.LoginDTO;
 import com.epam.hibernate.entity.*;
 import com.epam.hibernate.exception.UserInactiveException;
 import com.epam.hibernate.repository.TraineeRepository;
@@ -21,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.naming.AuthenticationException;
-import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -35,14 +33,11 @@ public class TraineeService {
     private final TraineeRepository traineeRepository;
     private final UserRepository userRepository;
     private final TrainerRepository trainerRepository;
-    private final UserService userService;
-
     @Autowired
-    public TraineeService(MeterRegistry meterRegistry, TraineeRepository traineeRepository, UserRepository userRepository, TrainerRepository trainerRepository, UserService userService) {
+    public TraineeService(MeterRegistry meterRegistry, TraineeRepository traineeRepository, UserRepository userRepository, TrainerRepository trainerRepository) {
         this.traineeRepository = traineeRepository;
         this.userRepository = userRepository;
         this.trainerRepository = trainerRepository;
-        this.userService = userService;
         this.timer = Timer.builder("trainee_register_timer")
                 .description("Times Registering Trainee")
                 .register(meterRegistry);
@@ -81,8 +76,7 @@ public class TraineeService {
     }
 
     public ResponseEntity<UpdateTraineeResponse> updateTrainee(@NotNull String username,
-                                                               @NotNull UpdateTraineeRequest request) throws AuthenticationException {
-        userService.authenticate(request.getLoginDTO());
+                                                               @NotNull UpdateTraineeRequest request) {
         Trainee trainee = traineeRepository.updateTrainee(username, request.getDob(), request.getAddress(),
                 request.getFirstName(), request.getLastName(), request.getActive());
 
@@ -108,8 +102,7 @@ public class TraineeService {
     }
 
     @Transactional
-    public ResponseEntity<List<TraineeTrainingsResponse>> getTrainingList(@NotNull String username, @NotNull TraineeTrainingsRequest request) throws AuthenticationException {
-        userService.authenticate(request.getLoginDTO());
+    public ResponseEntity<List<TraineeTrainingsResponse>> getTrainingList(@NotNull String username, @NotNull TraineeTrainingsRequest request) {
         List<Training> trainingList = traineeRepository.getTrainingList(username,
                 request.getFrom(), request.getTo(), request.getTrainerName(),
                 request.getTrainingType());
@@ -123,8 +116,7 @@ public class TraineeService {
     }
 
     @Transactional
-    public ResponseEntity<List<NotAssignedTrainer>> notAssignedTrainersList(@NotNull String username, @NotNull LoginDTO loginDTO) throws AuthenticationException {
-        userService.authenticate(loginDTO);
+    public ResponseEntity<List<NotAssignedTrainer>> notAssignedTrainersList(@NotNull String username) {
         Trainee trainee = traineeRepository.selectByUsername(username);
         List<Trainer> allTrainers = trainerRepository.getAllTrainers();
         List<Trainer> notAssignedTrainers = new ArrayList<>();
@@ -156,8 +148,7 @@ public class TraineeService {
     }
 
     @Transactional
-    public ResponseEntity<List<TrainerListInfo>> updateTrainersList(String username, UpdateTrainersListRequest request) throws AuthenticationException {
-        userService.authenticate(request.getLoginDTO());
+    public ResponseEntity<List<TrainerListInfo>> updateTrainersList(String username, UpdateTrainersListRequest request) {
         Trainee trainee = traineeRepository.selectByUsername(username);
 
         Set<String> trainersSet = request.getTrainers();

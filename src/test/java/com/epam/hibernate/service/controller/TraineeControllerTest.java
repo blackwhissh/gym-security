@@ -1,5 +1,6 @@
 package com.epam.hibernate.service.controller;
 
+import com.epam.hibernate.controller.RegisterController;
 import com.epam.hibernate.controller.TraineeController;
 import com.epam.hibernate.dto.trainee.request.TraineeRegisterRequest;
 import com.epam.hibernate.dto.trainee.response.TraineeRegisterResponse;
@@ -16,6 +17,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 public class TraineeControllerTest {
+    @Mock
+    private RegisterController registerController;
     @InjectMocks
     private TraineeController traineeController;
 
@@ -33,7 +36,7 @@ public class TraineeControllerTest {
 
         TraineeRegisterRequest validRequest = new TraineeRegisterRequest("John","Doe",null,null);
 
-        ResponseEntity<TraineeRegisterResponse> responseEntity = traineeController.registerTrainee(validRequest);
+        ResponseEntity<TraineeRegisterResponse> responseEntity = registerController.registerTrainee(validRequest);
 
         assertEquals(200, responseEntity.getStatusCode().value());
     }

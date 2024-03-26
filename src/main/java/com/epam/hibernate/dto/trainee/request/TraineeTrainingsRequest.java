@@ -1,34 +1,22 @@
 package com.epam.hibernate.dto.trainee.request;
 
-import com.epam.hibernate.dto.user.LoginDTO;
 import com.epam.hibernate.entity.TrainingTypeEnum;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
 
 public class TraineeTrainingsRequest {
-    private LoginDTO loginDTO;
     private Date from;
     private Date to;
     private String trainerName;
     private TrainingTypeEnum trainingType;
 
-    public TraineeTrainingsRequest(@NotNull LoginDTO loginDTO, @Nullable Date from, @Nullable Date to,
+    public TraineeTrainingsRequest(@Nullable Date from, @Nullable Date to,
                                    @Nullable String trainerName, @Nullable TrainingTypeEnum trainingType) {
-        this.loginDTO = loginDTO;
         this.from = from;
         this.to = to;
         this.trainerName = trainerName;
         this.trainingType = trainingType;
-    }
-
-    public LoginDTO getLoginDTO() {
-        return loginDTO;
-    }
-
-    public void setLoginDTO(LoginDTO loginDTO) {
-        this.loginDTO = loginDTO;
     }
 
     public Date getFrom() {

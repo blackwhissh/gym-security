@@ -1,6 +1,5 @@
 package com.epam.hibernate.service;
 
-import com.epam.hibernate.dto.OnOffRequest;
 import com.epam.hibernate.dto.user.LoginDTO;
 import com.epam.hibernate.entity.RoleEnum;
 import com.epam.hibernate.entity.User;
@@ -47,8 +46,7 @@ public class UserServiceTest {
         User mockUser = createMockUser();
         when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(mockUser));
 
-        OnOffRequest onOffRequest = new OnOffRequest("admin", "password");
-        ResponseEntity<?> responseEntity = userService.activateDeactivate("username", onOffRequest);
+        ResponseEntity<?> responseEntity = userService.activateDeactivate("username");
 
         assertEquals(200, responseEntity.getStatusCode().value());
         assertEquals("User activated/deactivated successfully", responseEntity.getBody());

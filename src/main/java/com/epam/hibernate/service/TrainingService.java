@@ -1,21 +1,22 @@
 package com.epam.hibernate.service;
 
 import com.epam.hibernate.dto.AddTrainingRequest;
-import com.epam.hibernate.dto.user.LoginDTO;
-import com.epam.hibernate.entity.*;
-import com.epam.hibernate.repository.*;
+import com.epam.hibernate.entity.Trainee;
+import com.epam.hibernate.entity.Trainer;
+import com.epam.hibernate.entity.Training;
+import com.epam.hibernate.entity.TrainingType;
+import com.epam.hibernate.repository.TraineeRepository;
+import com.epam.hibernate.repository.TrainerRepository;
+import com.epam.hibernate.repository.TrainingTypeRepository;
+import com.epam.hibernate.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.naming.AuthenticationException;
 import java.io.NotActiveException;
-import java.nio.file.AccessDeniedException;
 import java.util.List;
-
-import static com.epam.hibernate.Utils.checkAdmin;
 
 @Service
 public class TrainingService {
@@ -38,9 +39,7 @@ public class TrainingService {
     }
 
     @Transactional
-    public ResponseEntity<?> addTraining(@NotNull AddTrainingRequest request) throws NotActiveException, AuthenticationException, AccessDeniedException {
-        userService.authenticate(request.getLoginDTO());
-
+    public ResponseEntity<?> addTraining(@NotNull AddTrainingRequest request) throws NotActiveException {
         Trainee trainee = traineeRepository.selectByUsername(request.getTraineeUsername());
         Trainer trainer = trainerRepository.selectByUsername(request.getTrainerUsername());
         if (!trainer.getUser().getActive() || !trainee.getUser().getActive()) {
@@ -66,9 +65,7 @@ public class TrainingService {
         return ResponseEntity.status(200).body("Training added successfully");
     }
 
-    public ResponseEntity<List<TrainingType>> getTrainingTypes(LoginDTO loginDTO) throws AuthenticationException {
-        checkAdmin(loginDTO.getUsername(), userRepository);
-        userService.authenticate(loginDTO);
+    public ResponseEntity<List<TrainingType>> getTrainingTypes() {
         return ResponseEntity.ok().body(trainingTypeRepository.getAll());
     }
 }
