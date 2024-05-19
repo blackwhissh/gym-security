@@ -16,6 +16,7 @@ public class DevDataLoader {
     private final TraineeService traineeService;
     private final TrainerService trainerService;
 
+
     public DevDataLoader(TraineeService traineeService, TrainerService trainerService) {
         this.traineeService = traineeService;
         this.trainerService = trainerService;
@@ -24,12 +25,13 @@ public class DevDataLoader {
     @PostConstruct
     @Transactional
     public void loadSampleData(){
+
         traineeService.createProfile(new TraineeRegisterRequest(
                 "trainee","trainee",null,null
         ));
 
         trainerService.createProfile(new TrainerRegisterRequest(
-                "trainer","trainer",TrainingTypeEnum.AGILITY
+                "trainer","trainer","AGILITY"
         ));
     }
 }

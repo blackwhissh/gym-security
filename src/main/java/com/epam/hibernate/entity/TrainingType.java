@@ -11,6 +11,7 @@ public class TrainingType {
     @Column(name = "training_type_id", nullable = false)
     private Integer trainingTypeId;
     @Column(name = "training_type_name", nullable = false)
+    @Enumerated(EnumType.STRING)
     private TrainingTypeEnum trainingTypeName;
 
     public TrainingType() {

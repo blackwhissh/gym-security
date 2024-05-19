@@ -8,10 +8,7 @@ import com.epam.hibernate.dto.trainer.response.TrainerProfileResponse;
 import com.epam.hibernate.dto.trainer.response.TrainerRegisterResponse;
 import com.epam.hibernate.dto.trainer.response.TrainerTrainingsResponse;
 import com.epam.hibernate.dto.trainer.response.UpdateTrainerResponse;
-import com.epam.hibernate.entity.RoleEnum;
-import com.epam.hibernate.entity.Trainer;
-import com.epam.hibernate.entity.Training;
-import com.epam.hibernate.entity.User;
+import com.epam.hibernate.entity.*;
 import com.epam.hibernate.repository.TrainerRepository;
 import com.epam.hibernate.repository.TrainingTypeRepository;
 import com.epam.hibernate.repository.UserRepository;
@@ -54,7 +51,7 @@ public class TrainerService {
             } else {
                 trainerUser.setUsername(generateUsername(trainerUser.getFirstName(), trainerUser.getLastName(), true));
             }
-            Trainer trainer = new Trainer(trainingTypeRepository.selectByType(request.getSpecialization()),
+            Trainer trainer = new Trainer(trainingTypeRepository.selectByType(TrainingTypeEnum.valueOf(request.getSpecialization())),
                     trainerUser);
             trainerRepository.save(trainer);
         });

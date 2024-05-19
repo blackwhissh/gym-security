@@ -23,6 +23,7 @@ public class Training {
     private String trainingName;
     @ManyToOne
     @JoinColumn(name = "training_type_id")
+    @Enumerated(value = EnumType.STRING)
     private TrainingType trainingType;
     @Column(name = "training_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")

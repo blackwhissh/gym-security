@@ -8,6 +8,7 @@ import com.epam.hibernate.dto.user.UserInfoDTO;
 import com.epam.hibernate.entity.RefreshToken;
 import com.epam.hibernate.entity.User;
 import com.epam.hibernate.exception.RefreshTokenNotFoundException;
+import com.epam.hibernate.feignClient.TrainingServiceClient;
 import com.epam.hibernate.repository.UserRepository;
 import com.epam.hibernate.security.jwt.AuthTokenFilter;
 import com.epam.hibernate.security.jwt.JwtUtils;
@@ -18,6 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,7 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.naming.AuthenticationException;
 
 @RestController
-@RequestMapping(value = "/v1/user", consumes = {"application/JSON"}, produces = {"application/JSON", "application/XML"})
+@RequestMapping(value = "/v1/user",  produces = {"application/JSON", "application/XML"})
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class UserController {
     private final TokenManager tokenManager;

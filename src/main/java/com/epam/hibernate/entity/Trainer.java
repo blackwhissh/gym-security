@@ -17,7 +17,7 @@ public class Trainer {
     private Long trainerId;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "specialization")
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private TrainingType specialization;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
